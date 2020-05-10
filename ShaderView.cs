@@ -18,8 +18,6 @@ enum ShaderStatus
     UnknownShaderFileType = -2,
 }
 
-
-
 class ShaderView
 {
     private int Width;
@@ -48,13 +46,15 @@ class ShaderView
     private void InitShader()
     {
         BasicProgramID = GL.CreateProgram();
+        string repositoryPath = Path.GetFullPath(Path.Combine(Path.GetDirectoryName(Application.ExecutablePath), @"..\..\"));
 
-        LoadShader("C:\\Users\\auxla\\source\\repos\\RayTracing\\Shaders\\RayTracing.vert", BasicProgramID, out BasicVertexShader);
-        LoadShader("C:\\Users\\auxla\\source\\repos\\RayTracing\\Shaders\\RayTracing.frag", BasicProgramID, out BasicFragmentShader);
+        LoadShader(repositoryPath + "Shaders\\RayTracing.vert", BasicProgramID, out BasicVertexShader);
+        LoadShader(repositoryPath + "Shaders\\RayTracing.frag", BasicProgramID, out BasicFragmentShader);
 
         GL.LinkProgram(BasicProgramID);
 
-        int status;
+        int status = 0;
+
         GL.GetProgram(BasicProgramID, GetProgramParameterName.LinkStatus, out status);
         Console.WriteLine(GL.GetProgramInfoLog(BasicProgramID));
     }
@@ -94,7 +94,6 @@ class ShaderView
         address = GL.CreateShader(type);
         if (File.Exists(filename))
         {
-            
             StreamReader Reader = new StreamReader(filename);
             
             GL.ShaderSource(address, Reader.ReadToEnd());

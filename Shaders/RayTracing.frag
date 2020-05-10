@@ -3,6 +3,8 @@
 out vec4 FragColor;
 in 	vec3 glPosition;
 
+
+
 struct Cam
 {
 	vec3 Position;
@@ -29,7 +31,6 @@ Ray GenerateRay(Cam uCamera)
 Cam InitCameraDefaults()
 {
 	Cam camera;
-	
 	camera.Position	= vec3(0.0, 0.0, -8.0);
 	camera.View	 	= vec3(0.0, 0.0, 1.0);
 	camera.Up 		= vec3(0.0, 1.0, 0.0);
@@ -45,5 +46,4 @@ void main ( void ) {
 	Ray uRay = GenerateRay(uCam);
 	
 	FragColor = vec4(abs(uRay.Direction.xy), 0, 1.0);
-	//FragColor = vec4 ( abs(glPosition.xy), 0, 1.0);
 }
