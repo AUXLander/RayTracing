@@ -37,7 +37,7 @@
             this.GLView.Dock = System.Windows.Forms.DockStyle.Fill;
             this.GLView.Location = new System.Drawing.Point(0, 0);
             this.GLView.Name = "GLView";
-            this.GLView.Size = new System.Drawing.Size(898, 558);
+            this.GLView.Size = new System.Drawing.Size(706, 558);
             this.GLView.TabIndex = 0;
             this.GLView.VSync = false;
             this.GLView.Paint += new System.Windows.Forms.PaintEventHandler(this.GLView_Paint);
@@ -46,7 +46,7 @@
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(898, 558);
+            this.ClientSize = new System.Drawing.Size(706, 558);
             this.Controls.Add(this.GLView);
             this.Name = "MainForm";
             this.Text = "MainForm";

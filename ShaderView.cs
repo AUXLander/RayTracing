@@ -54,7 +54,6 @@ class ShaderView
         GL.LinkProgram(BasicProgramID);
 
         int status = 0;
-
         GL.GetProgram(BasicProgramID, GetProgramParameterName.LinkStatus, out status);
         Console.WriteLine(GL.GetProgramInfoLog(BasicProgramID));
     }
