@@ -34,7 +34,7 @@ class ShaderView
     private ShaderStatus Status = ShaderStatus.NotInitilized;
 
     public OpenTK.Vector3 LightSourcePosition = new OpenTK.Vector3(2.0f, 4.0f, -4.0f);
-    public OpenTK.Vector3 CameraPosition = new OpenTK.Vector3(0.0F, 0.0F, -8.0f);
+    public OpenTK.Vector3 CameraPosition = new OpenTK.Vector3(0.0F, 0.0F, -4.9f);
 
     public const int CUBE_SIDES_COUNT = 6;
 
@@ -45,6 +45,9 @@ class ShaderView
     public int[] CubeMaterials = new int[CUBE_MAX_COUNT];
     public float[] CubeSizes = new float[CUBE_MAX_COUNT];
 
+    public const int RAYTRACING_MAX_DEPTH = 10;
+    public int RayTracingDepth = RAYTRACING_MAX_DEPTH;
+
     public struct STriangle
     {
         public OpenTK.Vector3 v1;
@@ -54,14 +57,9 @@ class ShaderView
         public int MaterialIdx;
     }
 
-    public struct SCube
+    public struct Basis
     {
-        STriangle[] CubeTriangles;
-    }
-
-    public struct Side
-    {
-        public OpenTK.Vector3 up;
+        public OpenTK.Vector3 top;
         public OpenTK.Vector3 left;
         public OpenTK.Vector3 right;
         public OpenTK.Vector3 bottom;
@@ -96,6 +94,7 @@ class ShaderView
         GL.GetProgram(BasicProgramID, GetProgramParameterName.LinkStatus, out status);
         Console.WriteLine(GL.GetProgramInfoLog(BasicProgramID));
     }
+
     public void LoadShader(string filename, int program, out int address)
     {
         address = -1;
@@ -184,63 +183,68 @@ class ShaderView
     private STriangle[] CreateCube(OpenTK.Vector3 Position, float size)
     {
         STriangle[] Triangles = new STriangle[2 * CUBE_SIDES_COUNT];
-        Side[] sides = new Side[6];
+        Basis[] basis = new Basis[6];
 
-        // back
-        sides[0].up = new OpenTK.Vector3(0, size, 0);
-        sides[0].left = new OpenTK.Vector3(-size, 0, 0);
-        sides[0].right = new OpenTK.Vector3(size, 0, 0);
-        sides[0].bottom = new OpenTK.Vector3(0, -size, 0);
-        sides[0].align = new OpenTK.Vector3(0, 0, size);
+        // Базис Oxy, Z = 1
+        basis[0].top    = new OpenTK.Vector3(+0, +1, +0);
+        basis[0].left   = new OpenTK.Vector3(-1, +0, +0);
+        basis[0].right  = new OpenTK.Vector3(+1, +0, +0);
+        basis[0].bottom = new OpenTK.Vector3(+0, -1, +0);
 
-        // front
-        sides[1].up = new OpenTK.Vector3(0, size, 0);
-        sides[1].left = new OpenTK.Vector3(-size, 0, 0);
-        sides[1].right = new OpenTK.Vector3(size, 0, 0);
-        sides[1].bottom = new OpenTK.Vector3(0, -size, 0);
+        basis[0].align  = new OpenTK.Vector3(+0, +0, +1);
 
-        sides[1].align = new OpenTK.Vector3(0, 0, -size);
+        // Базис Oxy, Z = -1
+        basis[1].top    = new OpenTK.Vector3(+0, +1, +0);
+        basis[1].left   = new OpenTK.Vector3(-1, +0, +0);
+        basis[1].right  = new OpenTK.Vector3(+1, +0, +0);
+        basis[1].bottom = new OpenTK.Vector3(+0, -1, +0);
 
-        // left
-        sides[2].up = new OpenTK.Vector3(0, size, 0);
-        sides[2].left = new OpenTK.Vector3(0, 0, size);
-        sides[2].right = new OpenTK.Vector3(0, 0, -size);
-        sides[2].bottom = new OpenTK.Vector3(0, -size, 0);
-        sides[2].align = new OpenTK.Vector3(-size, 0, 0);
+        basis[1].align  = new OpenTK.Vector3(+0, +0, -1);
 
+        // Базис Oyz, X = -1
+        basis[2].top    = new OpenTK.Vector3(+0, +1, +0);
+        basis[2].left   = new OpenTK.Vector3(+0, +0, +1);
+        basis[2].right  = new OpenTK.Vector3(+0, +0, -1);
+        basis[2].bottom = new OpenTK.Vector3(+0, -1, +0);
 
-        // right
-        sides[3].up = new OpenTK.Vector3(0, -size, 0);
-        sides[3].left = new OpenTK.Vector3(0, 0, size);
-        sides[3].right = new OpenTK.Vector3(0, 0, -size);
-        sides[3].bottom = new OpenTK.Vector3(0, size, 0);
-        sides[3].align = new OpenTK.Vector3(size, 0, 0);
+        basis[2].align  = new OpenTK.Vector3(-1, +0, +0);
 
 
-        // top
-        sides[4].up = new OpenTK.Vector3(0, 0, size);
-        sides[4].left = new OpenTK.Vector3(-size, 0, 0);
-        sides[4].right = new OpenTK.Vector3(size, 0, 0);
-        sides[4].bottom = new OpenTK.Vector3(0, 0, -size);
-        sides[4].align = new OpenTK.Vector3(0, size, 0);
+        // Базис Oyz, X = 1
+        basis[3].top    = new OpenTK.Vector3(+0, -1, +0);
+        basis[3].left   = new OpenTK.Vector3(+0, +0, +1);
+        basis[3].right  = new OpenTK.Vector3(+0, +0, -1);
+        basis[3].bottom = new OpenTK.Vector3(+0, +1, +0);
+
+        basis[3].align  = new OpenTK.Vector3(+1, +0, +0);
 
 
-        // bottom
-        sides[5].up = new OpenTK.Vector3(0, 0, size);
-        sides[5].left = new OpenTK.Vector3(-size, 0, 0);
-        sides[5].right = new OpenTK.Vector3(size, 0, 0);
-        sides[5].bottom = new OpenTK.Vector3(0, 0, -size);
-        sides[5].align = new OpenTK.Vector3(0, -size, 0);
+        // Базис Oxz, Y = 1
+        basis[4].top    = new OpenTK.Vector3(+0, +0, +1);
+        basis[4].left   = new OpenTK.Vector3(-1, +0, +0);
+        basis[4].right  = new OpenTK.Vector3(+1, +0, +0);
+        basis[4].bottom = new OpenTK.Vector3(+0, +0, -1);
+
+        basis[4].align  = new OpenTK.Vector3(+0, +1, +0);
 
 
+        // Базис Oxz, Y = -1
+        basis[5].top    = new OpenTK.Vector3(+0, +0, +1);
+        basis[5].left   = new OpenTK.Vector3(-1, +0, +0);
+        basis[5].right  = new OpenTK.Vector3(+1, +0, +0);
+        basis[5].bottom = new OpenTK.Vector3(+0, +0, -1);
+
+        basis[5].align  = new OpenTK.Vector3(+0, -1, +0);
+
+        // Правило обхода для создания вершин треугольников
         for (int i = 0; i < CUBE_SIDES_COUNT; i++) {
-            Triangles[2 * i + 0].v1 = Position + sides[i].align + sides[i].right + sides[i].up;
-            Triangles[2 * i + 0].v2 = Position + sides[i].align + sides[i].left + sides[i].bottom;
-            Triangles[2 * i + 0].v3 = Position + sides[i].align + sides[i].right + sides[i].bottom;
+            Triangles[2 * i + 0].v1 = Position + size * (basis[i].align + basis[i].right + basis[i].top);
+            Triangles[2 * i + 0].v2 = Position + size * (basis[i].align + basis[i].left + basis[i].bottom);
+            Triangles[2 * i + 0].v3 = Position + size * (basis[i].align + basis[i].right + basis[i].bottom);
 
-            Triangles[2 * i + 1].v1 = Position + sides[i].align + sides[i].right + sides[i].up;
-            Triangles[2 * i + 1].v2 = Position + sides[i].align + sides[i].left + sides[i].up;
-            Triangles[2 * i + 1].v3 = Position + sides[i].align + sides[i].left  + sides[i].bottom;
+            Triangles[2 * i + 1].v1 = Position + size * (basis[i].align + basis[i].right + basis[i].top);
+            Triangles[2 * i + 1].v2 = Position + size * (basis[i].align + basis[i].left + basis[i].top);
+            Triangles[2 * i + 1].v3 = Position + size * (basis[i].align + basis[i].left  + basis[i].bottom);
         }
 
         return Triangles;
@@ -262,19 +266,18 @@ class ShaderView
             Triangles = Triangles.Union(NextTriangles).ToArray();
         }
 
-        //SetUniform1("CUBE_TRIANGLES_COUNT", CUBE_COUNT);
-
         for (int i = 1; i < Triangles.Length; i++)
         {
-            SetUniform3("CubeTriangles[" + i.ToString() + "].v1", Triangles[i].v1);
-            SetUniform3("CubeTriangles[" + i.ToString() + "].v2", Triangles[i].v2);
-            SetUniform3("CubeTriangles[" + i.ToString() + "].v3", Triangles[i].v3);
-            SetUniform1("CubeTriangles[" + i.ToString() + "].MaterialIdx", CubeMaterials[((i - 1) / (2 * CUBE_SIDES_COUNT))]);
+            SetUniform3("CubeTriangles[" + i + "].v1", Triangles[i].v1);
+            SetUniform3("CubeTriangles[" + i + "].v2", Triangles[i].v2);
+            SetUniform3("CubeTriangles[" + i + "].v3", Triangles[i].v3);
+            SetUniform1("CubeTriangles[" + i + "].MaterialIdx", CubeMaterials[((i - 1) / (2 * CUBE_SIDES_COUNT))]);
         }
     }
 
     private void UpdateUniforms()
     {
+        SetUniform1("RayTracingDepth",   Math.Max(1, Math.Min(RayTracingDepth, RAYTRACING_MAX_DEPTH)));
         SetUniform3("LIGHT_POSITION",    LightSourcePosition);
 
         SetUniform3("uCamera.Position",  CameraPosition);

@@ -104,19 +104,29 @@ namespace RayTracing
             float y = (float)Convert.ToDouble(textCubePosY.Text.Replace('.', ',').Trim());
             float z = (float)Convert.ToDouble(textCubePosZ.Text.Replace('.', ',').Trim());
 
+            int colorIndex = comboColor.SelectedIndex;
             string sizeStr = comboSize.SelectedItem as string;
-            float  sizeFlt = (float)Convert.ToDouble(sizeStr.Replace('.', ',').Trim());
-
-            if (SV.CUBE_COUNT <= 10)
+            if(sizeStr != null)
             {
-                int nextPos = SV.CUBE_COUNT;
-                SV.CUBE_COUNT++;
+                float sizeFlt = (float)Convert.ToDouble(sizeStr.Replace('.', ',').Trim());
 
-                SV.CubePositions[nextPos] = new OpenTK.Vector3(x, y, z);
-                SV.CubeSizes[nextPos] = sizeFlt;
-                SV.CubeMaterials[nextPos] = comboColor.SelectedIndex;
+                if (SV.CUBE_COUNT <= 10)
+                {
+                    int nextPos = SV.CUBE_COUNT;
+                    SV.CUBE_COUNT++;
+
+                    SV.CubePositions[nextPos] = new OpenTK.Vector3(x, y, z);
+                    SV.CubeSizes[nextPos] = sizeFlt;
+                    SV.CubeMaterials[nextPos] = colorIndex;
+                }
+
+                GLViewer.Invalidate();
             }
+        }
 
+        private void SetRayTracingDepth(object sender, EventArgs e)
+        {
+            SV.RayTracingDepth = Convert.ToInt32(trackRayTrDepth.Value);
             GLViewer.Invalidate();
         }
     }

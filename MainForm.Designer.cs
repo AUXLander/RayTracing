@@ -43,10 +43,14 @@
             this.label3 = new System.Windows.Forms.Label();
             this.comboColor = new System.Windows.Forms.ComboBox();
             this.comboSize = new System.Windows.Forms.ComboBox();
+            this.groupBox3 = new System.Windows.Forms.GroupBox();
+            this.trackRayTrDepth = new System.Windows.Forms.TrackBar();
             ((System.ComponentModel.ISupportInitialize)(this.tbPosX)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.tbPosY)).BeginInit();
             this.groupBox1.SuspendLayout();
             this.groupBox2.SuspendLayout();
+            this.groupBox3.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.trackRayTrDepth)).BeginInit();
             this.SuspendLayout();
             // 
             // tbPosX
@@ -225,11 +229,33 @@
             this.comboSize.TabIndex = 8;
             this.comboSize.Text = "Size";
             // 
+            // groupBox3
+            // 
+            this.groupBox3.Controls.Add(this.trackRayTrDepth);
+            this.groupBox3.Location = new System.Drawing.Point(664, 147);
+            this.groupBox3.Name = "groupBox3";
+            this.groupBox3.Size = new System.Drawing.Size(426, 71);
+            this.groupBox3.TabIndex = 7;
+            this.groupBox3.TabStop = false;
+            this.groupBox3.Text = "RayTracing Depth";
+            // 
+            // trackRayTrDepth
+            // 
+            this.trackRayTrDepth.Location = new System.Drawing.Point(10, 19);
+            this.trackRayTrDepth.Minimum = 1;
+            this.trackRayTrDepth.Name = "trackRayTrDepth";
+            this.trackRayTrDepth.Size = new System.Drawing.Size(410, 45);
+            this.trackRayTrDepth.TabIndex = 7;
+            this.trackRayTrDepth.TickStyle = System.Windows.Forms.TickStyle.Both;
+            this.trackRayTrDepth.Value = 10;
+            this.trackRayTrDepth.Scroll += new System.EventHandler(this.SetRayTracingDepth);
+            // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(1102, 668);
+            this.Controls.Add(this.groupBox3);
             this.Controls.Add(this.groupBox2);
             this.Controls.Add(this.groupBox1);
             this.Controls.Add(this.tbPosY);
@@ -243,6 +269,9 @@
             this.groupBox1.PerformLayout();
             this.groupBox2.ResumeLayout(false);
             this.groupBox2.PerformLayout();
+            this.groupBox3.ResumeLayout(false);
+            this.groupBox3.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.trackRayTrDepth)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -266,6 +295,8 @@
         private System.Windows.Forms.Button buttonAddCube;
         private System.Windows.Forms.ComboBox comboSize;
         private System.Windows.Forms.ComboBox comboColor;
+        private System.Windows.Forms.GroupBox groupBox3;
+        private System.Windows.Forms.TrackBar trackRayTrDepth;
     }
 }
 

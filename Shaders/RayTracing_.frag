@@ -16,15 +16,16 @@ const int MIRROR_REFLECTION  = 2;
 
 
 const int SPHERES_COUNT   = 3;
-const int TRIANGLES_COUNT = 10;
+const int TRIANGLES_COUNT = 12;
 const int MATERIAL_COUNT  = 6;
-const int STACK_LENGTH    = 10;
 
 const vec3 COLOR_RED    = vec3(1.0, 0.0, 0.0);
 const vec3 COLOR_GREEN  = vec3(0.0, 1.0, 0.0);
 const vec3 COLOR_YELLOW = vec3(1.0, 1.0, 0.0);
 const vec3 COLOR_BLUE   = vec3(0.0, 0.0, 1.0);
 const vec3 COLOR_WHITE  = vec3(1.0, 1.0, 1.0);
+
+const int STACK_LENGTH = 10;
 
 
 //const vec3 LIGHT_POSITION = vec3(2.0, 4.0, -4.0);
@@ -103,10 +104,14 @@ STracingRay Stack	  [STACK_LENGTH];
 
 uniform vec3  LIGHT_POSITION;
 uniform Cam   uCamera;
+
+
 const int CUBE_COUNT = 10;
 const int CUBE_TRIANGLES_COUNT = 12;
 const int CUBE_TOTAL_TRIANGLES_COUNT = CUBE_COUNT * CUBE_TRIANGLES_COUNT;
 uniform STriangle CubeTriangles[CUBE_TOTAL_TRIANGLES_COUNT];
+
+uniform int RayTracingDepth;
 
 Ray GenerateRay() {
 	vec2 crd = glPosition.xy * uCamera.Scale;
@@ -129,14 +134,14 @@ Ray GenerateRay() {
 } */
 
 bool pushRay (STracingRay newray) {
-	bool canPlaced = StackPTR < STACK_LENGTH;
+	bool canBePlaced = (StackPTR < STACK_LENGTH);
 	
-	if(canPlaced) {
+	if(canBePlaced) {
 		StackPTR += 1;
 		Stack[StackPTR] = newray;
 	}
 	
-	return canPlaced;
+	return canBePlaced;
 } 
 
 STracingRay popRay () {
@@ -201,12 +206,12 @@ void initializeDefaultScene( out STriangle triangles[TRIANGLES_COUNT], out SSphe
 	triangles[0].v1 = vec3(-5.0,-5.0,-5.0);
 	triangles[0].v2 = vec3(-5.0, 5.0, 5.0);
 	triangles[0].v3 = vec3(-5.0, 5.0,-5.0);
-	triangles[0].MaterialIdx = 3;
+	triangles[0].MaterialIdx = 5;
 	
 	triangles[1].v1 = vec3(-5.0,-5.0,-5.0);
 	triangles[1].v2 = vec3(-5.0,-5.0, 5.0);
 	triangles[1].v3 = vec3(-5.0, 5.0, 5.0);
-	triangles[1].MaterialIdx = 3;
+	triangles[1].MaterialIdx = 5;
 	
 	/* back wall */
 	triangles[2].v1 = vec3(-5.0,-5.0, 5.0);
@@ -223,12 +228,12 @@ void initializeDefaultScene( out STriangle triangles[TRIANGLES_COUNT], out SSphe
 	triangles[4].v1 = vec3( 5.0,-5.0,-5.0);
 	triangles[4].v2 = vec3( 5.0, 5.0,-5.0);
 	triangles[4].v3 = vec3( 5.0,-5.0, 5.0);
-	triangles[4].MaterialIdx = 3;
+	triangles[4].MaterialIdx = 5;
 	
 	triangles[5].v1 = vec3( 5.0, 5.0, 5.0);
 	triangles[5].v2 = vec3( 5.0,-5.0, 5.0);
 	triangles[5].v3 = vec3( 5.0, 5.0,-5.0);
-	triangles[5].MaterialIdx = 3;
+	triangles[5].MaterialIdx = 5;
 	
 	/* bottom wall */
 	triangles[6].v1 = vec3(-5.0,-5.0, 5.0);
@@ -253,20 +258,20 @@ void initializeDefaultScene( out STriangle triangles[TRIANGLES_COUNT], out SSphe
 	triangles[9].MaterialIdx = 4;
 	
 	/* front wall */
-	//triangles[10].v1 = vec3(-5.0,-5.0, 5.0);
-	//triangles[10].v2 = vec3( 5.0,-5.0, 5.0);
-	//triangles[10].v3 = vec3(-5.0, 5.0, 5.0);
-	//triangles[10].MaterialIdx = 0;
+	triangles[10].v1 = vec3(-5.0,-5.0, -5.0);
+	triangles[10].v2 = vec3(-5.0, 5.0, -5.0);
+	triangles[10].v3 = vec3( 5.0,-5.0, -5.0);
+	triangles[10].MaterialIdx = 2;
 	
-	//triangles[11].v1 = vec3( 5.0, 5.0, 5.0);
-	//triangles[11].v2 = vec3(-5.0, 5.0, 5.0);
-	//triangles[11].v3 = vec3( 5.0,-5.0, 5.0);
-	//triangles[11].MaterialIdx = 0;
+	triangles[11].v1 = vec3( 5.0, 5.0, -5.0);
+	triangles[11].v2 = vec3( 5.0,-5.0, -5.0);
+	triangles[11].v3 = vec3(-5.0, 5.0, -5.0);
+	triangles[11].MaterialIdx = 2;
 	
 	/** SPHERES **/
 	spheres[0].Center = vec3(-1.0,-1.0,-2.0);
 	spheres[0].Radius = 2.0;
-	spheres[0].MaterialIdx = 4;
+	spheres[0].MaterialIdx = 5;
 	
 	spheres[1].Center = vec3(2.0,1.0,2.0);
 	spheres[1].Radius = 1.0;
@@ -281,7 +286,6 @@ void initializeDefaultScene( out STriangle triangles[TRIANGLES_COUNT], out SSphe
 bool IntersectSphere( SSphere sphere, Ray ray, float start, float final, out float time ) {
 	ray.Origin -= sphere.Center;
 	
-	// dot - scalar multiply
 	float A = dot(ray.Direction, ray.Direction);
 	float B = dot(ray.Direction, ray.Origin);
 	float C = dot(ray.Origin, ray.Origin) - sphere.Radius * sphere.Radius;
@@ -487,9 +491,10 @@ void main ( void ) {
 					vec3 reflectDirection = reflect(ray.Direction, intersect.Normal);
 					
 					float contribution = sray.contribution * intersect.ReflectionCoef;
-					STracingRay reflectRay = STracingRay(Ray(intersect.Point + reflectDirection * EPSILON, reflectDirection), contribution, sray.depth + 1);
-					
-					pushRay(reflectRay);
+					if(sray.depth + 1 < RayTracingDepth) {
+						STracingRay reflectRay = STracingRay(Ray(intersect.Point + reflectDirection * EPSILON, reflectDirection), contribution, sray.depth + 1);
+						pushRay(reflectRay);
+					}
 					break;
 					
 				}
