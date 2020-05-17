@@ -28,7 +28,11 @@ class ShaderView
     private int BasicProgramID;
     private int BasicVertexShader;
     private int BasicFragmentShader;
+
     private ShaderStatus Status = ShaderStatus.NotInitilized;
+
+    public OpenTK.Vector3 LightSourcePosition = new OpenTK.Vector3(2.0f, 4.0f, -4.0f);
+
 
     public ShaderView(int width, int height, int vwidth, int vheight)
     {
@@ -78,12 +82,13 @@ class ShaderView
                     {
                         Status = ShaderStatus.UnknownShaderFileType;
                         return;
-                    }; 
+                    };
             }
 
             LoadShader(filename, type, program, out address);
         }
-        else {
+        else
+        {
             Status = ShaderStatus.FileNotFound;
         }
     }
@@ -94,7 +99,7 @@ class ShaderView
         if (File.Exists(filename))
         {
             StreamReader Reader = new StreamReader(filename);
-            
+
             GL.ShaderSource(address, Reader.ReadToEnd());
 
             GL.CompileShader(address);
@@ -106,7 +111,8 @@ class ShaderView
 
             Status = ShaderStatus.OK;
         }
-        else {
+        else
+        {
             Status = ShaderStatus.FileNotFound;
         }
     }
@@ -120,11 +126,23 @@ class ShaderView
         GL.Viewport(0, 0, VWidth, VHeight);
     }
 
+    private void SetUniform(string name, OpenTK.Vector3 value)
+    {
+        GL.Uniform3(GL.GetUniformLocation(BasicProgramID, name), value);
+    }
+
+    private void UpdateUniforms()
+    {
+        SetUniform("LIGHT_POSITION", LightSourcePosition);
+    }
+
     public void DrawQuads()
     {
         GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
 
         GL.UseProgram(BasicProgramID);
+
+        UpdateUniforms();
 
         GL.Begin(PrimitiveType.Quads);
 

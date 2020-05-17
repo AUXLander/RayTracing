@@ -28,36 +28,71 @@
         /// </summary>
         private void InitializeComponent()
         {
-            this.GLView = new OpenTK.GLControl();
+            this.buttonProcess = new System.Windows.Forms.Button();
+            this.tbLightPosX = new System.Windows.Forms.TrackBar();
+            this.tbLightPosY = new System.Windows.Forms.TrackBar();
+            ((System.ComponentModel.ISupportInitialize)(this.tbLightPosX)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.tbLightPosY)).BeginInit();
             this.SuspendLayout();
             // 
-            // GLView
+            // buttonProcess
             // 
-            this.GLView.BackColor = System.Drawing.Color.Black;
-            this.GLView.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.GLView.Location = new System.Drawing.Point(0, 0);
-            this.GLView.Name = "GLView";
-            this.GLView.Size = new System.Drawing.Size(706, 558);
-            this.GLView.TabIndex = 0;
-            this.GLView.VSync = false;
-            this.GLView.Paint += new System.Windows.Forms.PaintEventHandler(this.GLView_Paint);
+            this.buttonProcess.Location = new System.Drawing.Point(789, 506);
+            this.buttonProcess.Name = "buttonProcess";
+            this.buttonProcess.Size = new System.Drawing.Size(301, 38);
+            this.buttonProcess.TabIndex = 1;
+            this.buttonProcess.Text = "Process";
+            this.buttonProcess.UseVisualStyleBackColor = true;
+            this.buttonProcess.Click += new System.EventHandler(this.buttonProcess_Click);
+            // 
+            // tbLightPosX
+            // 
+            this.tbLightPosX.Location = new System.Drawing.Point(12, 613);
+            this.tbLightPosX.Maximum = 50;
+            this.tbLightPosX.Minimum = -50;
+            this.tbLightPosX.Name = "tbLightPosX";
+            this.tbLightPosX.Size = new System.Drawing.Size(595, 45);
+            this.tbLightPosX.TabIndex = 2;
+            this.tbLightPosX.TickStyle = System.Windows.Forms.TickStyle.Both;
+            this.tbLightPosX.Value = 2;
+            this.tbLightPosX.Scroll += new System.EventHandler(this.tbLightPosX_Scroll);
+            // 
+            // tbLightPosY
+            // 
+            this.tbLightPosY.Location = new System.Drawing.Point(613, 12);
+            this.tbLightPosY.Maximum = 50;
+            this.tbLightPosY.Minimum = -50;
+            this.tbLightPosY.Name = "tbLightPosY";
+            this.tbLightPosY.Orientation = System.Windows.Forms.Orientation.Vertical;
+            this.tbLightPosY.Size = new System.Drawing.Size(45, 595);
+            this.tbLightPosY.TabIndex = 3;
+            this.tbLightPosY.TickStyle = System.Windows.Forms.TickStyle.Both;
+            this.tbLightPosY.Value = 2;
             // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(706, 558);
-            this.Controls.Add(this.GLView);
+            this.ClientSize = new System.Drawing.Size(1102, 668);
+            this.Controls.Add(this.tbLightPosY);
+            this.Controls.Add(this.tbLightPosX);
+            this.Controls.Add(this.buttonProcess);
             this.Name = "MainForm";
             this.Text = "MainForm";
             this.Load += new System.EventHandler(this.MainForm_Load);
+            ((System.ComponentModel.ISupportInitialize)(this.tbLightPosX)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.tbLightPosY)).EndInit();
             this.ResumeLayout(false);
+            this.PerformLayout();
 
         }
 
         #endregion
 
         private OpenTK.GLControl GLView;
+        private System.Windows.Forms.Button buttonProcess;
+        private System.Windows.Forms.TrackBar tbLightPosX;
+        private System.Windows.Forms.TrackBar tbLightPosY;
     }
 }
 

@@ -3,7 +3,7 @@
 out vec4 FragColor;
 in 	vec3 glPosition;
 
-const float EPSILON = 0.001;
+const float EPSILON = 0.0005;
 const float BIG = 1.0 / 0.0;
 const vec3  Unit = vec3 ( 1.0, 1.0, 1.0 );
 	
@@ -14,9 +14,9 @@ const int MATERIAL_REFRACTION = 3;
 const int DIFFUSE_REFLECTION = 1;
 const int MIRROR_REFLECTION  = 2;
 
-const int SPHERES_COUNT   = 2;
+const int SPHERES_COUNT   = 3;
 const int TRIANGLES_COUNT = 10;
-const int MATERIAL_COUNT  = 5;
+const int MATERIAL_COUNT  = 6;
 const int STACK_LENGTH    = 10;
 
 const vec3 COLOR_RED    = vec3(1.0, 0.0, 0.0);
@@ -24,6 +24,10 @@ const vec3 COLOR_GREEN  = vec3(0.0, 1.0, 0.0);
 const vec3 COLOR_YELLOW = vec3(1.0, 1.0, 0.0);
 const vec3 COLOR_BLUE   = vec3(0.0, 0.0, 1.0);
 const vec3 COLOR_WHITE  = vec3(1.0, 1.0, 1.0);
+
+
+uniform vec3 LIGHT_POSITION;
+//const vec3 LIGHT_POSITION = vec3(2.0, 4.0, -4.0);
 
 int StackPTR = -1;
 
@@ -96,6 +100,7 @@ SSphere   	spheres	  [SPHERES_COUNT];
 SMaterial 	materials [MATERIAL_COUNT];
 STracingRay Stack	  [STACK_LENGTH];
 
+
 Ray GenerateRay() {
 	vec2 crd = glPosition.xy * uCamera.Scale;
 	vec3 dir = uCamera.View + uCamera.Side * crd.x + uCamera.Up * crd.y;
@@ -137,9 +142,10 @@ bool isEmpty() {
 }
 
 
+
 void initializeDefaultLightMaterials(out SLight light, out SMaterial materials[MATERIAL_COUNT]) {
 
-	light.Position = vec3(0.0, 2.0, -4.0f);
+	light.Position = LIGHT_POSITION;
 
 	vec4 lightCoefs = vec4(0.4, 0.9, 0.0, 512.0);
 	
@@ -172,6 +178,13 @@ void initializeDefaultLightMaterials(out SLight light, out SMaterial materials[M
 	materials[4].ReflectionCoef = 0.5;
 	materials[4].RefractionCoef = 1.0;
 	materials[4].MaterialType 	= MATERIAL_DIFFUSE;
+	
+	
+	materials[5].Color 			= COLOR_WHITE;
+	materials[5].LightCoeffs 	= lightCoefs;
+	materials[5].ReflectionCoef = 0.5;
+	materials[5].RefractionCoef = 1.0;
+	materials[5].MaterialType 	= MATERIAL_REFLECTION;
 }
 
 void initializeDefaultScene( out STriangle triangles[TRIANGLES_COUNT], out SSphere spheres[SPHERES_COUNT] ) {
@@ -206,19 +219,19 @@ void initializeDefaultScene( out STriangle triangles[TRIANGLES_COUNT], out SSphe
 	triangles[4].MaterialIdx = 3;
 	
 	triangles[5].v1 = vec3( 5.0, 5.0, 5.0);
-	triangles[5].v2 = vec3( 5.0, 5.0,-5.0);
-	triangles[5].v3 = vec3( 5.0,-5.0, 5.0);
+	triangles[5].v2 = vec3( 5.0,-5.0, 5.0);
+	triangles[5].v3 = vec3( 5.0, 5.0,-5.0);
 	triangles[5].MaterialIdx = 3;
 	
 	/* bottom wall */
 	triangles[6].v1 = vec3(-5.0,-5.0, 5.0);
-	triangles[6].v2 = vec3( 5.0,-5.0, 5.0);
-	triangles[6].v3 = vec3(-5.0,-5.0,-5.0);
+	triangles[6].v2 = vec3(-5.0,-5.0,-5.0);
+	triangles[6].v3 = vec3( 5.0,-5.0, 5.0);
 	triangles[6].MaterialIdx = 4;
 	
 	triangles[7].v1 = vec3( 5.0,-5.0, 5.0);
-	triangles[7].v2 = vec3( 5.0,-5.0,-5.0);
-	triangles[7].v3 = vec3(-5.0,-5.0,-5.0);
+	triangles[7].v2 = vec3(-5.0,-5.0,-5.0);
+	triangles[7].v3 = vec3( 5.0,-5.0,-5.0);
 	triangles[7].MaterialIdx = 4;
 	
 	/* top wall */
@@ -228,8 +241,8 @@ void initializeDefaultScene( out STriangle triangles[TRIANGLES_COUNT], out SSphe
 	triangles[8].MaterialIdx = 4;
 	
 	triangles[9].v1 = vec3(-5.0, 5.0,-5.0);
-	triangles[9].v2 = vec3( 5.0, 5.0,-5.0);
-	triangles[9].v3 = vec3(-5.0, 5.0, 5.0);
+	triangles[9].v2 = vec3(-5.0, 5.0, 5.0);
+	triangles[9].v3 = vec3( 5.0, 5.0,-5.0);
 	triangles[9].MaterialIdx = 4;
 	
 	/* front wall */
@@ -246,23 +259,28 @@ void initializeDefaultScene( out STriangle triangles[TRIANGLES_COUNT], out SSphe
 	/** SPHERES **/
 	spheres[0].Center = vec3(-1.0,-1.0,-2.0);
 	spheres[0].Radius = 2.0;
-	spheres[0].MaterialIdx = 0;
+	spheres[0].MaterialIdx = 4;
 	
 	spheres[1].Center = vec3(2.0,1.0,2.0);
 	spheres[1].Radius = 1.0;
 	spheres[1].MaterialIdx = 0;
+	
+	
+	spheres[2].Center = LIGHT_POSITION + vec3(0.6, 0.6, -0.1);
+	spheres[2].Radius = .1;
+	spheres[2].MaterialIdx = 4;
 }
 
 bool IntersectSphere( SSphere sphere, Ray ray, float start, float final, out float time ) {
 	ray.Origin -= sphere.Center;
 	
-	// dot - скалярное произведение векторов
+	// dot - scalar multiply
 	float A = dot(ray.Direction, ray.Direction);
 	float B = dot(ray.Direction, ray.Origin);
 	float C = dot(ray.Origin, ray.Origin) - sphere.Radius * sphere.Radius;
 	float D = B * B - A * C;
 	
-	if (D > 0.0) {
+	if (D >= 0.0) {
 		D = sqrt(D);
 		
 		float t1 = (-B - D) / A;
@@ -296,7 +314,7 @@ bool IntersectTriangle(Ray ray, vec3 v1, vec3 v2, vec3 v3, out float time) {
 	
 	float t = -(dot(N, ray.Origin) - dot(N, v1)) / NdotRayDirection;
 	
-	if (t < 0) {
+	if (t < 0.0) {
 		return false;
 	}
 	
@@ -304,17 +322,17 @@ bool IntersectTriangle(Ray ray, vec3 v1, vec3 v2, vec3 v3, out float time) {
 	vec3 C;
 	
 	C = cross(v2 - v1, P - v1);
-	if (dot(N, C) < 0) {
+	if (dot(N, C) < 0.0) {
 		return false;
 	}
 	
 	C = cross(v3 - v2, P - v2);
-	if (dot(N, C) < 0) {
+	if (dot(N, C) < 0.0) {
 		return false;
 	}
 	
 	C = cross(v1 - v3, P - v3);
-	if (dot(N, C) < 0) {
+	if (dot(N, C) < 0.0) {
 		return false;
 	}
 	
@@ -326,9 +344,9 @@ bool Raytrace(Ray ray, float start, float final, inout SIntersection intersect )
 	bool  result = false;
 	float test   = start;
 	
-	int			MaterialIdx;
-	SSphere 	sphere;
-	STriangle 	triangle;
+	int		  MaterialIdx;
+	STriangle triangle;
+	SSphere	  sphere;
 	
 	intersect.Time = final;
 	
@@ -387,11 +405,11 @@ float Shadow(SLight currLight, SIntersection intersect) {
 vec3 Phong(SIntersection intersect, SLight currLight, float shadow) {
 	vec3  light     = normalize(currLight.Position - intersect.Point);
 	vec3  view 	    = normalize(uCamera.Position   - intersect.Point);
-	float diffuse   = max(dot(light, intersect.Normal), 0);
+	float diffuse   = max(dot(light, intersect.Normal), 0.0);
 	
 	vec3  reflected = reflect(-view, intersect.Normal);
 	
-	float specular = pow(max(dot(reflected, light), 0), intersect.LightCoeffs.w);
+	float specular = pow(max(dot(reflected, light), 0.0), intersect.LightCoeffs.w);
 	
 	return intersect.LightCoeffs.x * intersect.Color +
 		   intersect.LightCoeffs.y * diffuse * intersect.Color * shadow +
@@ -434,8 +452,8 @@ void main ( void ) {
 				case MIRROR_REFLECTION: {
 				
 					if (intersect.ReflectionCoef < 1) {
-						float contribution = sray.contribution * (1 - intersect.ReflectionCoef);
 						float shadow = Shadow(light, intersect);
+						float contribution = sray.contribution * (1 - intersect.ReflectionCoef);
 						
 						resultColor += contribution * Phong(intersect, light, shadow);
 					}
