@@ -15,7 +15,10 @@ namespace RayTracing
     public partial class MainForm : Form
     {
         private OpenTK.GLControl GLViewer;
-        private float TrackBarStep = 1;
+
+        private float TrackBarStepX = 1.0F;
+        private float TrackBarStepY = 1.0F;
+
         private ShaderView SV;
         public MainForm()
         {
@@ -38,7 +41,8 @@ namespace RayTracing
             GLViewer.MakeCurrent();
 
             SV = new ShaderView(GLViewer.Width, GLViewer.Height, GLViewer.Width, GLViewer.Height);
-            TrackBarStep = (4.0f + 4.0f) / (tbLightPosX.Maximum - tbLightPosX.Minimum);
+            TrackBarStepX = (4.0f + 4.0f) / (tbPosX.Maximum - tbPosX.Minimum);
+            TrackBarStepY = (4.0f + 4.0f) / (tbPosY.Maximum - tbPosY.Minimum);
         }
 
         private void GLPaint(object sender, PaintEventArgs e)
@@ -53,10 +57,66 @@ namespace RayTracing
             GLViewer.Invalidate();
         }
 
-        private void tbLightPosX_Scroll(object sender, EventArgs e)
+        private void tbPosX_Scroll(object sender, EventArgs e)
         {
-            TrackBar trackX = sender as TrackBar;
-            SV.LightSourcePosition.X = TrackBarStep * trackX.Value;
+            if (radioLight.Checked)
+            {
+                SV.LightSourcePosition.X = TrackBarStepX * tbPosX.Value;
+            }
+            else if (radioCamera.Checked)
+            {
+                SV.CameraPosition.X = TrackBarStepX * tbPosX.Value;
+            }
+
+            GLViewer.Invalidate();
+        }
+
+        private void tbPosY_Scroll(object sender, EventArgs e)
+        {
+            if (radioLight.Checked)
+            {
+                SV.LightSourcePosition.Y = TrackBarStepY * tbPosY.Value;
+            }
+            else if (radioCamera.Checked)
+            {
+                SV.CameraPosition.Y = TrackBarStepY * tbPosY.Value;
+            }
+
+            GLViewer.Invalidate();
+        }
+        private void radioPositionChanged(object sender, EventArgs e)
+        {
+            if (radioLight.Checked)
+            {
+                tbPosX.Value = (int)(SV.LightSourcePosition.X / TrackBarStepX);
+                tbPosY.Value = (int)(SV.LightSourcePosition.Y / TrackBarStepY);
+            }
+            else if (radioCamera.Checked)
+            {
+                tbPosX.Value = (int)(SV.CameraPosition.X / TrackBarStepX);
+                tbPosY.Value = (int)(SV.CameraPosition.Y / TrackBarStepY);
+            }
+        }
+
+        private void buttonAddCube_Click(object sender, EventArgs e)
+        {
+            float x = (float)Convert.ToDouble(textCubePosX.Text.Replace('.', ',').Trim());
+            float y = (float)Convert.ToDouble(textCubePosY.Text.Replace('.', ',').Trim());
+            float z = (float)Convert.ToDouble(textCubePosZ.Text.Replace('.', ',').Trim());
+
+            string sizeStr = comboSize.SelectedItem as string;
+            float  sizeFlt = (float)Convert.ToDouble(sizeStr.Replace('.', ',').Trim());
+
+            if (SV.CUBE_COUNT <= 10)
+            {
+                int nextPos = SV.CUBE_COUNT;
+                SV.CUBE_COUNT++;
+
+                SV.CubePositions[nextPos] = new OpenTK.Vector3(x, y, z);
+                SV.CubeSizes[nextPos] = sizeFlt;
+                SV.CubeMaterials[nextPos] = comboColor.SelectedIndex;
+            }
+
             GLViewer.Invalidate();
         }
     }
