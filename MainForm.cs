@@ -41,8 +41,8 @@ namespace RayTracing
             GLViewer.MakeCurrent();
 
             SV = new ShaderView(GLViewer.Width, GLViewer.Height, GLViewer.Width, GLViewer.Height);
-            TrackBarStepX = (4.0f + 4.0f) / (tbPosX.Maximum - tbPosX.Minimum);
-            TrackBarStepY = (4.0f + 4.0f) / (tbPosY.Maximum - tbPosY.Minimum);
+            TrackBarStepX = ShaderView.TOTAL_VIEW_WIDTH / (tbPosX.Maximum - tbPosX.Minimum);
+            TrackBarStepY = ShaderView.TOTAL_VIEW_WIDTH / (tbPosY.Maximum - tbPosY.Minimum);
         }
 
         private void GLPaint(object sender, PaintEventArgs e)
@@ -106,20 +106,11 @@ namespace RayTracing
 
             int colorIndex = comboColor.SelectedIndex;
             string sizeStr = comboSize.SelectedItem as string;
+
             if(sizeStr != null)
             {
                 float sizeFlt = (float)Convert.ToDouble(sizeStr.Replace('.', ',').Trim());
-
-                if (SV.CUBE_COUNT <= 10)
-                {
-                    int nextPos = SV.CUBE_COUNT;
-                    SV.CUBE_COUNT++;
-
-                    SV.CubePositions[nextPos] = new OpenTK.Vector3(x, y, z);
-                    SV.CubeSizes[nextPos] = sizeFlt;
-                    SV.CubeMaterials[nextPos] = colorIndex;
-                }
-
+                SV.CubeAdd(x, y, z, colorIndex, sizeFlt);
                 GLViewer.Invalidate();
             }
         }
