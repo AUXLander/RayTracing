@@ -48,8 +48,8 @@ class ShaderView
         BasicProgramID = GL.CreateProgram();
         string repositoryPath = Path.GetFullPath(Path.Combine(Path.GetDirectoryName(Application.ExecutablePath), @"..\..\"));
 
-        LoadShader(repositoryPath + "Shaders\\RayTracing.vert", BasicProgramID, out BasicVertexShader);
-        LoadShader(repositoryPath + "Shaders\\RayTracing.frag", BasicProgramID, out BasicFragmentShader);
+        LoadShader(repositoryPath + "Shaders\\RayTracing_.vert", BasicProgramID, out BasicVertexShader);
+        LoadShader(repositoryPath + "Shaders\\RayTracing_.frag", BasicProgramID, out BasicFragmentShader);
 
         GL.LinkProgram(BasicProgramID);
 
