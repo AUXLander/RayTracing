@@ -18,6 +18,7 @@ namespace RayTracing
 
         private float TrackBarStepX = 1.0F;
         private float TrackBarStepY = 1.0F;
+        private float TrackBarStepZ = 1.0F;
 
         private ShaderView SV;
         public MainForm()
@@ -27,6 +28,7 @@ namespace RayTracing
             GLViewer = new OpenTK.GLControl(new OpenTK.Graphics.GraphicsMode(32, 24, 0, 8));
 
             GLViewer.Paint += GLPaint;
+            GLViewer.MouseWheel += PosZ;
 
             Controls.Add(GLViewer);
 
@@ -38,11 +40,13 @@ namespace RayTracing
 
         private void MainForm_Load(object sender, EventArgs e)
         {
-            GLViewer.MakeCurrent();
-
             SV = new ShaderView(GLViewer.Width, GLViewer.Height, GLViewer.Width, GLViewer.Height);
+
             TrackBarStepX = ShaderView.TOTAL_VIEW_WIDTH / (tbPosX.Maximum - tbPosX.Minimum);
             TrackBarStepY = ShaderView.TOTAL_VIEW_WIDTH / (tbPosY.Maximum - tbPosY.Minimum);
+            TrackBarStepZ = ShaderView.TOTAL_VIEW_WIDTH / 100.0F;
+
+            GLViewer.MakeCurrent();
         }
 
         private void GLPaint(object sender, PaintEventArgs e)
@@ -54,6 +58,22 @@ namespace RayTracing
 
         private void buttonProcess_Click(object sender, EventArgs e)
         {
+            GLViewer.Invalidate();
+        }
+
+        private void PosZ(object sender, MouseEventArgs e)
+        {
+            int DeltaNormalized = e.Delta * SystemInformation.MouseWheelScrollLines / 120;
+            
+            if (radioLight.Checked)
+            {
+                SV.LightSourcePosition.Z += TrackBarStepZ * DeltaNormalized;
+            }
+            else if (radioCamera.Checked)
+            {
+                SV.CameraPosition.Z += TrackBarStepZ * DeltaNormalized;
+            }
+
             GLViewer.Invalidate();
         }
 

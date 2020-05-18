@@ -14,7 +14,7 @@ const int DIFFUSE_REFLECTION = 1;
 const int MIRROR_REFLECTION  = 2;
 
 const int SPHERES_COUNT   = 3;
-const int TRIANGLES_COUNT = 12;
+const int TRIANGLES_COUNT = 10;
 const int MATERIAL_COUNT  = 6;
 
 const int CUBE_COUNT = 10;
@@ -177,8 +177,8 @@ void initializeDefaultLightMaterials(out SLight light, out SMaterial materials[M
 	
 	materials[5].Color 			= COLOR_WHITE;
 	materials[5].LightCoeffs 	= lightCoefs;
-	materials[5].ReflectionCoef = 0.5;
-	materials[5].RefractionCoef = 1.0;
+	materials[5].ReflectionCoef = 1.0;
+	materials[5].RefractionCoef = 0.5;
 	materials[5].MaterialType 	= MATERIAL_REFLECTION;
 }
 
@@ -241,7 +241,7 @@ void initializeDefaultScene( out STriangle triangles[TRIANGLES_COUNT], out SSphe
 	triangles[9].MaterialIdx = 4;
 	
 	/* front wall */
-	triangles[10].v1 = vec3(-5.0,-5.0, -5.0);
+	/* triangles[10].v1 = vec3(-5.0,-5.0, -5.0);
 	triangles[10].v2 = vec3(-5.0, 5.0, -5.0);
 	triangles[10].v3 = vec3( 5.0,-5.0, -5.0);
 	triangles[10].MaterialIdx = 2;
@@ -249,7 +249,7 @@ void initializeDefaultScene( out STriangle triangles[TRIANGLES_COUNT], out SSphe
 	triangles[11].v1 = vec3( 5.0, 5.0, -5.0);
 	triangles[11].v2 = vec3( 5.0,-5.0, -5.0);
 	triangles[11].v3 = vec3(-5.0, 5.0, -5.0);
-	triangles[11].MaterialIdx = 2;
+	triangles[11].MaterialIdx = 2; */
 	
 	/** SPHERES **/
 	spheres[0].Center = vec3(-1.0,-1.0,-2.0);

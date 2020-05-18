@@ -246,6 +246,8 @@ class ShaderView
         basis[5].align  = new OpenTK.Vector3(+0, -1, +0);
 
         // Правило обхода для создания вершин треугольников
+        // Линейная комбинация базисных векторов образует плоскость треугольника в пространстве, масштабируется параметром size
+        // Чтобы спозиционировать положение всех пространственных плоскостей используется линейный сдвиг
         for (int i = 0; i < CUBE_SIDES_COUNT; i++) {
             Triangles[2 * i + 0].v1 = position + size * (basis[i].align + basis[i].right + basis[i].top);
             Triangles[2 * i + 0].v2 = position + size * (basis[i].align + basis[i].left + basis[i].bottom);
